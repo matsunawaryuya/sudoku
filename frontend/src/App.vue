@@ -1,29 +1,35 @@
 <template>
   <div id="app">
-    <table class="sudoku">
-      <tr
-        v-for="(line, lineIndex) in numbers"
-        :key="lineIndex"
-        :class="{
-          'border-bottom': lineIndex == 2 || lineIndex == 5,
-        }"
-      >
-        <td
-          v-for="(number, numberIndex) in line"
-          :key="numberIndex"
+    <div>
+      <table class="sudoku">
+        <tr
+          v-for="(line, lineIndex) in numbers"
+          :key="lineIndex"
           :class="{
-            'border-right': numberIndex == 2 || numberIndex == 5,
-            'related-cell': relatedCell(lineIndex, numberIndex),
-            selected:
-              selectedCell.rowIndex == lineIndex &&
-              selectedCell.columnIndex == numberIndex,
+            'border-bottom': lineIndex == 2 || lineIndex == 5,
           }"
-          @click="selectCell(lineIndex, numberIndex)"
         >
-          {{ number == 0 ? "" : number }}
-        </td>
-      </tr>
-    </table>
+          <td
+            v-for="(number, numberIndex) in line"
+            :key="numberIndex"
+            :class="{
+              'border-right': numberIndex == 2 || numberIndex == 5,
+              'related-cell': relatedCell(lineIndex, numberIndex),
+              selected:
+                selectedCell.rowIndex == lineIndex &&
+                selectedCell.columnIndex == numberIndex,
+            }"
+            @click="selectCell(lineIndex, numberIndex)"
+          >
+            {{ number == 0 ? "" : number }}
+          </td>
+        </tr>
+      </table>
+      <div class="d-flex button-area">
+        <button @click="resetCell">リセット</button>
+        <button @click="resolve">自動回答</button>
+      </div>
+    </div>
     <div class="seletable-numbers">
       <button
         v-for="(number, i) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 'C']"
@@ -37,20 +43,22 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "App",
   data() {
     return {
       numbers: [
-        [0, 0, 5, 3, 0, 0, 0, 0, 0],
-        [8, 0, 0, 0, 0, 0, 0, 2, 0],
-        [0, 7, 0, 0, 1, 0, 5, 0, 0],
-        [4, 0, 0, 0, 0, 5, 3, 0, 0],
-        [0, 1, 0, 0, 7, 0, 0, 0, 6],
-        [0, 0, 3, 2, 0, 0, 0, 8, 0],
-        [0, 6, 0, 5, 0, 0, 0, 0, 9],
-        [0, 0, 4, 0, 0, 0, 0, 3, 0],
-        [0, 0, 0, 0, 0, 9, 7, 0, 0],
+        [0, 2, 3, 0, 0, 5, 0, 6, 0],
+        [7, 0, 5, 0, 2, 0, 9, 0, 0],
+        [0, 0, 0, 0, 7, 0, 0, 0, 4],
+        [5, 8, 0, 0, 0, 0, 3, 0, 9],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [6, 0, 2, 0, 1, 0, 5, 0, 0],
+        [0, 0, 0, 2, 9, 0, 0, 0, 0],
+        [2, 3, 7, 0, 0, 8, 0, 0, 0],
+        [0, 4, 1, 0, 0, 0, 0, 0, 0],
       ],
       selectedCell: {
         rowIndex: -1,
@@ -89,6 +97,18 @@ export default {
         selectedNumber == "C" ? 0 : selectedNumber
       );
     },
+    resetCell() {
+      this.numbers = [...Array(9)].map(() => [...Array(9)]);
+    },
+    resolve() {
+      const path = "/api/resolve";
+      axios
+        .post(path, { numbers: this.numbers })
+        .then((res) => {
+          this.numbers = res.data.result;
+        })
+        .catch((err) => err);
+    },
   },
 };
 </script>
@@ -101,6 +121,7 @@ export default {
   justify-content: center;
   .sudoku {
     margin-right: 20px;
+    margin-bottom: 20px;
     border-collapse: collapse;
     border: 3px solid #ccc;
     td {
@@ -119,6 +140,12 @@ export default {
       background: rgba(245, 241, 44, 0.5);
     }
   }
+  .button-area {
+    button {
+      margin: 0 10px;
+      padding: 10px 20px;
+    }
+  }
   .seletable-numbers {
     display: flex;
     flex-direction: column;
@@ -135,5 +162,9 @@ export default {
 }
 .border-right {
   border-right: 3px solid #ccc !important;
+}
+.d-flex {
+  display: flex;
+  justify-content: center;
 }
 </style>
