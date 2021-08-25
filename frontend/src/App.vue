@@ -13,12 +13,26 @@
           :key="numberIndex"
           :class="{
             'border-right': numberIndex == 2 || numberIndex == 5,
+            'related-cell': relatedCell(lineIndex, numberIndex),
+            selected:
+              selectedCell.rowIndex == lineIndex &&
+              selectedCell.columnIndex == numberIndex,
           }"
+          @click="selectCell(lineIndex, numberIndex)"
         >
           {{ number == 0 ? "" : number }}
         </td>
       </tr>
     </table>
+    <div class="seletable-numbers">
+      <button
+        v-for="(number, i) in [1, 2, 3, 4, 5, 6, 7, 8, 9, 'C']"
+        :key="i"
+        @click="setNumber(number)"
+      >
+        {{ number }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -38,7 +52,43 @@ export default {
         [0, 0, 4, 0, 0, 0, 0, 3, 0],
         [0, 0, 0, 0, 0, 9, 7, 0, 0],
       ],
+      selectedCell: {
+        rowIndex: -1,
+        columnIndex: -1,
+      },
     };
+  },
+  computed: {
+    relatedCell: function () {
+      return function (lineIndex, numberIndex) {
+        const isSelectedRow = lineIndex == this.selectedCell.rowIndex;
+        const isSelectedColumn = numberIndex == this.selectedCell.columnIndex;
+        const selectedCellBaseRow =
+          Math.floor(this.selectedCell.rowIndex / 3) ==
+          Math.floor(lineIndex / 3);
+        const selectedCellBaseColumn =
+          Math.floor(this.selectedCell.columnIndex / 3) ==
+          Math.floor(numberIndex / 3);
+        return (
+          isSelectedRow ||
+          isSelectedColumn ||
+          (selectedCellBaseRow && selectedCellBaseColumn)
+        );
+      };
+    },
+  },
+  methods: {
+    selectCell(lineIndex, numberIndex) {
+      this.selectedCell.rowIndex = lineIndex;
+      this.selectedCell.columnIndex = numberIndex;
+    },
+    setNumber(selectedNumber) {
+      this.$set(
+        this.numbers[this.selectedCell.rowIndex],
+        this.selectedCell.columnIndex,
+        selectedNumber == "C" ? 0 : selectedNumber
+      );
+    },
   },
 };
 </script>
@@ -47,8 +97,10 @@ export default {
 #app {
   box-sizing: border-box;
   margin-top: 60px;
+  display: flex;
+  justify-content: center;
   .sudoku {
-    margin: 0 auto;
+    margin-right: 20px;
     border-collapse: collapse;
     border: 3px solid #ccc;
     td {
@@ -59,6 +111,22 @@ export default {
       vertical-align: middle;
       font-size: 55px;
       cursor: pointer;
+    }
+    .related-cell {
+      background: rgba(243, 242, 170, 0.5);
+    }
+    .selected {
+      background: rgba(245, 241, 44, 0.5);
+    }
+  }
+  .seletable-numbers {
+    display: flex;
+    flex-direction: column;
+    button {
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      margin-bottom: 10px;
     }
   }
 }
