@@ -18,6 +18,7 @@ def resolve():
 
 def get_result(numbers: List[List[int]]):
   results = []
+  result = numbers
   # 回答が作れた時
   if solve(0, 0, result):
     results.append(result)
@@ -75,11 +76,10 @@ def isValidColumn(x, y, numbers):
 def isValidBox(x, y, numbers):
   start_x = (x // 3) * 3
   start_y = (y // 3) * 3
-  box = [(x,y) for x in range(start_x, start_x + 3) for y in range(start_y, start_y + 3)]
+  box = [(m, n) for m in range(start_x, start_x + 3) for n in range(start_y, start_y + 3) if (m, n) != (x, y)]
   for (m, n) in box:
-    if (x, y) != (m, n):
-      if numbers[y][x] == numbers[n][m]:
-        return False
+    if numbers[y][x] == numbers[n][m]:
+      return False
   return True
 
 ## おまじない

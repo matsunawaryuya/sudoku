@@ -105,7 +105,7 @@ export default {
       axios
         .post(path, { numbers: this.numbers })
         .then((res) => {
-          this.numbers = res.data.results;
+          this.numbers = res.data.results[0];
         })
         .catch((err) => err);
     },
