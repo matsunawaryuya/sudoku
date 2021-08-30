@@ -1,5 +1,6 @@
 from flask import Flask, request
 from typing import List
+import copy
 
 app = Flask(__name__)
 
@@ -18,30 +19,31 @@ def resolve():
 
 def get_result(numbers: List[List[int]]):
   results = []
-  result = numbers
+  initial_value = copy.deepcopy(numbers)
   # 回答が作れた時
-  if solve(0, 0, result):
-    results.append(result)
+  if solve(0, 0, numbers, range(1, 10)):
+    # solve(0, 0, initial_value, range(9, 0, -1))
+    results.append(numbers)
     return(results)
   else:
     return
   
-def solve(x, y, numbers):
+def solve(x, y, numbers, current_range):
   if x == 0 and y == 9:
     return True
   
   if numbers[y][x] == 0:
-    for i in range(1, 10):
+    for i in current_range:
       numbers[y][x] = i
       if isValid(x, y, numbers):
         (nx, ny) = next(x, y)
-        if solve(nx, ny, numbers):
+        if solve(nx, ny, numbers, current_range):
           return True
     numbers[y][x] = 0
     return False
   else:
     (nx, ny) = next(x, y)
-    if solve(nx, ny, numbers):
+    if solve(nx, ny, numbers, current_range):
       return True
   
 def next(x, y):

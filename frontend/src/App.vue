@@ -18,6 +18,7 @@
               selected:
                 selectedCell.rowIndex == lineIndex &&
                 selectedCell.columnIndex == numberIndex,
+              'initial-value': inputArray[lineIndex][numberIndex],
             }"
             @click="selectCell(lineIndex, numberIndex)"
           >
@@ -64,6 +65,7 @@ export default {
         rowIndex: -1,
         columnIndex: -1,
       },
+      inputArray: [...Array(9)].map(() => [...Array(9)]),
     };
   },
   computed: {
@@ -101,6 +103,9 @@ export default {
       this.numbers = [...Array(9)].map(() => [...Array(9)]);
     },
     resolve() {
+      this.inputArray = this.numbers.map((line) =>
+        line.map((number) => number != 0)
+      );
       const path = "/api/resolve";
       axios
         .post(path, { numbers: this.numbers })
@@ -132,6 +137,9 @@ export default {
       vertical-align: middle;
       font-size: 55px;
       cursor: pointer;
+    }
+    .initial-value {
+      color: blue;
     }
     .related-cell {
       background: rgba(243, 242, 170, 0.5);
