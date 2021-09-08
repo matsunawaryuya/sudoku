@@ -12,17 +12,28 @@ def resolve():
   get_request = request.get_json()
   # jsonオブジェクトの中の数独の配列を取得
   get_numbers = get_request['numbers']
+  # 問題の初期状態を保存しておく
+  initial_value = copy.deepcopy(get_numbers)
   # 計算結果をresultsにいれる
   results = get_result(get_numbers)
+  has_another_solution = False
+  has_solution = results != None
+  print(has_solution)
+  # 解があったら
+  if has_solution:
+    # 初期状態に戻す
+    get_numbers = initial_value
+    # 別解があるか確認する
+    has_another_solution = checkAnotherSolution(get_numbers, results[0])
+  print(has_another_solution, has_solution)    
   # Vueに計算結果を返却する
-  return { 'results': results }
+  return { 'results': results, 'has_another_solution': has_another_solution, 'has_solution': has_solution }
 
 def get_result(numbers: List[List[int]]):
   results = []
   initial_value = copy.deepcopy(numbers)
   # 回答が作れた時
   if solve(0, 0, numbers, range(1, 10)):
-    # solve(0, 0, initial_value, range(9, 0, -1))
     results.append(numbers)
     return(results)
   else:
@@ -83,6 +94,10 @@ def isValidBox(x, y, numbers):
     if numbers[y][x] == numbers[n][m]:
       return False
   return True
+
+def checkAnotherSolution(numbers, result):
+  if solve(0, 0, numbers, range(9, 0, -1)):
+    return result != numbers
 
 ## おまじない
 if __name__ == "__main__":

@@ -30,6 +30,12 @@
         <button @click="resetCell">リセット</button>
         <button @click="resolve">自動回答</button>
       </div>
+      <div
+        v-if="hasAnotherSolution || !hasSolution"
+        class="d-flex another-solution"
+      >
+        {{ message }}
+      </div>
     </div>
     <div class="seletable-numbers">
       <button
@@ -66,6 +72,8 @@ export default {
         columnIndex: -1,
       },
       inputArray: [...Array(9)].map(() => [...Array(9)]),
+      hasAnotherSolution: false,
+      hasSolution: true,
     };
   },
   computed: {
@@ -86,6 +94,15 @@ export default {
         );
       };
     },
+    message() {
+      if (this.hasAnotherSolution) {
+        return "別解あるかも！";
+      } else if (!this.hasSolution) {
+        return "解がありません…";
+      } else {
+        return "";
+      }
+    },
   },
   methods: {
     selectCell(lineIndex, numberIndex) {
@@ -93,6 +110,7 @@ export default {
       this.selectedCell.columnIndex = numberIndex;
     },
     setNumber(selectedNumber) {
+      if (this.selectedCell.rowIndex == -1) return;
       this.$set(
         this.numbers[this.selectedCell.rowIndex],
         this.selectedCell.columnIndex,
@@ -110,7 +128,11 @@ export default {
       axios
         .post(path, { numbers: this.numbers })
         .then((res) => {
-          this.numbers = res.data.results[0];
+          if (res.data.has_solution) {
+            this.numbers = res.data.results[0];
+            this.hasAnotherSolution = res.data.has_another_solution;
+          }
+          this.hasSolution = res.data.has_solution;
         })
         .catch((err) => err);
     },
@@ -149,10 +171,15 @@ export default {
     }
   }
   .button-area {
+    margin-bottom: 15px;
     button {
       margin: 0 10px;
       padding: 10px 20px;
     }
+  }
+  .another-solution {
+    color: red;
+    font-size: 24px;
   }
   .seletable-numbers {
     display: flex;
