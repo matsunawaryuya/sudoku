@@ -10,7 +10,7 @@ python3 -m venv venv
 ```
 cd backend
 source venv/bin/activate
-python resolve.py
+python main.py
 
 # 別タブ
 cd frontend

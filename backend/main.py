@@ -1,8 +1,13 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from typing import List
 import copy
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend/dist/static', template_folder='../frontend/dist')
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def index(path):
+  return render_template('index.html')
 
 # VueからのPOSTリクエスト
 @app.route('/api/resolve', methods=["POST"])
@@ -16,16 +21,16 @@ def resolve():
   initial_value = copy.deepcopy(get_numbers)
   # 計算結果をresultsにいれる
   results = get_result(get_numbers)
+  # 別解存在フラグ
   has_another_solution = False
+  # 解存在フラグ
   has_solution = results != None
-  print(has_solution)
   # 解があったら
   if has_solution:
     # 初期状態に戻す
     get_numbers = initial_value
     # 別解があるか確認する
     has_another_solution = checkAnotherSolution(get_numbers, results[0])
-  print(has_another_solution, has_solution)    
   # Vueに計算結果を返却する
   return { 'results': results, 'has_another_solution': has_another_solution, 'has_solution': has_solution }
 
@@ -101,4 +106,4 @@ def checkAnotherSolution(numbers, result):
 
 ## おまじない
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
